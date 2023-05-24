@@ -9,12 +9,12 @@ import RxSwift
 import RxCocoa
 
 enum State {
-    case updateUI(itmes: [String])
+    case updateUI
 }
 
 final class ViewModel: ViewModelable {
     // MARK: State
-    var dataSource = (0...10).map(String.init)
+    var dataSource = [String]()
     
     // MARK: Output
     var output: RxSwift.Observable<State> {
@@ -26,7 +26,8 @@ final class ViewModel: ViewModelable {
     func input(_ action: Action) {
         switch action {
         case .viewDidLoad:
-            outputSubject.onNext(.updateUI(itmes: dataSource))
+            dataSource = (1...10).map(String.init)
+            outputSubject.onNext(.updateUI)
         }
     }
 }

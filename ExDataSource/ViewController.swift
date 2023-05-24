@@ -40,22 +40,50 @@ class ViewController: UIViewController {
     
     // MARK: Properties
     let viewModel: ViewModelable = ViewModel()
+    private var disposeBag = DisposeBag()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         bind()
+        viewModel.input(.viewDidLoad)
     }
     
     private func configureUI() {
+        view.addSubview(tableView)
+        
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
         ])
+        
+        tableView.dataSource = self
     }
     
     private func bind() {
-        
+        viewModel.output
+            .observe(on: MainScheduler.instance)
+            .bind { [weak self] state in
+                guard let self else { return }
+                
+                switch state {
+                case .updateUI:
+                    tableView.reloadData()
+                }
+            }
+            .disposed(by: disposeBag)
+    }
+}
+
+extension ViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        viewModel.dataSource.count
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
+        cell?.textLabel?.text = viewModel.dataSource[indexPath.row]
+        return cell!
     }
 }
