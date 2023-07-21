@@ -15,6 +15,7 @@ enum State {
 final class ViewModel: ViewModelable {
     // MARK: State
     var dataSource = [String]()
+    let dataSourceUpdateQueue = DispatchQueue(label: "data_source_update_queue")
     
     // MARK: Output
     var output: RxSwift.Observable<State> {
@@ -26,8 +27,10 @@ final class ViewModel: ViewModelable {
     func input(_ action: Action) {
         switch action {
         case .viewDidLoad:
-            dataSource = (1...10).map(String.init)
-            outputSubject.onNext(.updateUI)
+            dataSourceUpdateQueue.async {
+                self.dataSource = (1...10).map(String.init)
+                self.outputSubject.onNext(.updateUI)
+            }
         }
     }
 }

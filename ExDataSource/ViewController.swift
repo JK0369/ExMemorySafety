@@ -70,7 +70,9 @@ class ViewController: UIViewController {
                 
                 switch state {
                 case .updateUI:
-                    tableView.reloadData()
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
                 }
             }
             .disposed(by: disposeBag)
